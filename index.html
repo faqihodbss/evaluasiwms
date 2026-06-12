@@ -186,6 +186,48 @@
                   
                   <div className="space-y-6">
                     <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                      <p className="font-semibold mb-3">1. Berapa rata-rata waktu yang Anda butuhkan untuk menyelesaikan proses <span className="text-blue-700">Receipt (Penerimaan)</span>?</p>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm text-slate-600 mb-1">Inventory Management (IM): <span className="text-red-500">*</span></label>
+                          <input required type="number" min="0" name="receiptIM" value={formData.receiptIM} onChange={handleChange} className="w-full p-2 border rounded" placeholder="... Menit" />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-slate-600 mb-1">Warehouse Management (WM): <span className="text-red-500">*</span></label>
+                          <input required type="number" min="0" name="receiptWM" value={formData.receiptWM} onChange={handleChange} className="w-full p-2 border rounded" placeholder="... Menit" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                      <p className="font-semibold mb-3">2. Berapa rata-rata waktu yang Anda butuhkan untuk menyelesaikan proses <span className="text-blue-700">Goods Issue (Pengeluaran)</span>?</p>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm text-slate-600 mb-1">Inventory Management (IM): <span className="text-red-500">*</span></label>
+                          <input required type="number" min="0" name="issueIM" value={formData.issueIM} onChange={handleChange} className="w-full p-2 border rounded" placeholder="... Menit" />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-slate-600 mb-1">Warehouse Management (WM): <span className="text-red-500">*</span></label>
+                          <input required type="number" min="0" name="issueWM" value={formData.issueWM} onChange={handleChange} className="w-full p-2 border rounded" placeholder="... Menit" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                      <p className="font-semibold mb-3">3. Berapa rata-rata waktu yang Anda butuhkan untuk menyelesaikan proses <span className="text-blue-700">Stock Opname</span>?</p>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm text-slate-600 mb-1">Inventory Management (IM): <span className="text-red-500">*</span></label>
+                          <input required type="number" min="0" name="opnameIM" value={formData.opnameIM} onChange={handleChange} className="w-full p-2 border rounded" placeholder="... Menit" />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-slate-600 mb-1">Warehouse Management (WM): <span className="text-red-500">*</span></label>
+                          <input required type="number" min="0" name="opnameWM" value={formData.opnameWM} onChange={handleChange} className="w-full p-2 border rounded" placeholder="... Menit" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
                       <p className="font-semibold mb-3">4. Berapa rata-rata waktu yang Anda butuhkan untuk pembuatan <span className="text-blue-700">Transfer Order</span>?</p>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -196,7 +238,7 @@
                     </div>
 
                     <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                      <p className="font-semibold mb-3">5. Berapa rata-rata waktu yang Anda butuhkan untuk pembuatan <span className="text-blue-700">Inbound Delivery</span>? (Khusus Depo)</p>
+                      <p className="font-semibold mb-3">5. Berapa rata-rata waktu yang Anda butuhkan untuk pembuatan <span className="text-blue-700">Inbound Delivery</span> (Khusus Depo)?</p>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm text-slate-600 mb-1">Warehouse Management (WM):</label>
