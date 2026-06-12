@@ -44,7 +44,7 @@
         receiptIM: '', receiptWM: '',
         issueIM: '', issueWM: '',
         opnameIM: '', opnameWM: '',
-        transferOrderWM: '', inboundDeliveryWM: '',
+        transferOrderWM: '', inboundDeliveryIM: '', inboundDeliveryWM: '',
         preference: '', opinion: ''
       };
 
@@ -74,7 +74,7 @@
             receiptIM: Number(formData.receiptIM), receiptWM: Number(formData.receiptWM),
             issueIM: Number(formData.issueIM), issueWM: Number(formData.issueWM),
             opnameIM: Number(formData.opnameIM), opnameWM: Number(formData.opnameWM),
-            transferOrderWM: Number(formData.transferOrderWM), inboundDeliveryWM: Number(formData.inboundDeliveryWM)
+            transferOrderWM: Number(formData.transferOrderWM), inboundDeliveryIM: Number(formData.inboundDeliveryIM), inboundDeliveryWM: Number(formData.inboundDeliveryWM)
           }, ...submissions]);
           setFormData(initialForm);
 
@@ -238,8 +238,12 @@
                     </div>
 
                     <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                      <p className="font-semibold mb-3">5. Berapa rata-rata waktu yang Anda butuhkan untuk pembuatan <span className="text-blue-700">Inbound Delivery</span> (Khusus Depo)?</p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <p className="font-semibold mb-3">5. Berapa rata-rata waktu yang Anda butuhkan untuk pembuatan <span className="text-blue-700">Inbound Delivery/DOM</span> (Khusus Depo)?</p>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm text-slate-600 mb-1">Inventory Management (IM):</label>
+                          <input type="number" min="0" name="inboundDeliveryIM" value={formData.inboundDeliveryIM} onChange={handleChange} className="w-full p-2 border rounded" placeholder="... Menit" />
+                        </div>
                         <div>
                           <label className="block text-sm text-slate-600 mb-1">Warehouse Management (WM):</label>
                           <input type="number" min="0" name="inboundDeliveryWM" value={formData.inboundDeliveryWM} onChange={handleChange} className="w-full p-2 border rounded" placeholder="... Menit" />
