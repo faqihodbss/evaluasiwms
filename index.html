@@ -44,6 +44,7 @@
         receiptIM: '', receiptWM: '',
         issueIM: '', issueWM: '',
         opnameIM: '', opnameWM: '',
+        transferOrderWM: '', inboundDeliveryWM: '',
         preference: '', opinion: ''
       };
 
@@ -72,7 +73,8 @@
           setSubmissions([{...formData, 
             receiptIM: Number(formData.receiptIM), receiptWM: Number(formData.receiptWM),
             issueIM: Number(formData.issueIM), issueWM: Number(formData.issueWM),
-            opnameIM: Number(formData.opnameIM), opnameWM: Number(formData.opnameWM)
+            opnameIM: Number(formData.opnameIM), opnameWM: Number(formData.opnameWM),
+            transferOrderWM: Number(formData.transferOrderWM), inboundDeliveryWM: Number(formData.inboundDeliveryWM)
           }, ...submissions]);
           setFormData(initialForm);
 
@@ -146,24 +148,104 @@
 
             {}
             {activeTab === 'form' ? (
-              <div className="bg-white p-12 rounded-xl shadow-sm border border-slate-200 text-center flex flex-col items-center justify-center min-h-[50vh]">
-                <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mb-6">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-600">
-                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
-                  </svg>
+              <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow-sm border border-slate-200">
+                <div className="mb-8">
+                  <h2 className="text-xl font-bold border-b pb-2 mb-4 flex items-center gap-2">
+                    <IconUser /> Data Identitas Karyawan
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold mb-1">Nama Lengkap <span className="text-red-500">*</span></label>
+                      <input required type="text" name="nama" value={formData.nama} onChange={handleChange} className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Masukkan nama..." />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold mb-1">NIK <span className="text-red-500">*</span></label>
+                      <input required type="text" name="nik" value={formData.nik} onChange={handleChange} className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Masukkan NIK..." />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold mb-1">Jabatan <span className="text-red-500">*</span></label>
+                      <div className="relative">
+                        <IconBriefcase />
+                        <input required type="text" name="jabatan" value={formData.jabatan} onChange={handleChange} className="w-full p-2 pl-9 border rounded focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Cth: Storeman" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold mb-1">Site / Lokasi <span className="text-red-500">*</span></label>
+                      <div className="relative">
+                        <IconMapPin />
+                        <input required type="text" name="site" value={formData.site} onChange={handleChange} className="w-full p-2 pl-9 border rounded focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Cth: DC Jakarta" />
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <h2 className="text-2xl font-bold text-slate-800 mb-3">System Under Maintenance</h2>
-                <p className="text-slate-600 max-w-md mx-auto mb-8">
-                  Mohon maaf, halaman kuisioner saat ini sedang dalam proses pemeliharaan (maintenance) untuk update perhitungan produktivitas manpower.
-                </p>
+
+                <div className="mb-8">
+                  <h2 className="text-xl font-bold border-b pb-2 mb-4 flex items-center gap-2">
+                    <IconClock /> Evaluasi Waktu Proses (Estimasi Menit / Material)
+                  </h2>
+                  
+                  <div className="space-y-6">
+                    <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                      <p className="font-semibold mb-3">4. Berapa rata-rata waktu yang Anda butuhkan untuk pembuatan <span className="text-blue-700">Transfer Order</span>?</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm text-slate-600 mb-1">Warehouse Management (WM):</label>
+                          <input type="number" min="0" name="transferOrderWM" value={formData.transferOrderWM} onChange={handleChange} className="w-full p-2 border rounded" placeholder="... Menit" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                      <p className="font-semibold mb-3">5. Berapa rata-rata waktu yang Anda butuhkan untuk pembuatan <span className="text-blue-700">Inbound Delivery</span>? (Khusus Depo)</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm text-slate-600 mb-1">Warehouse Management (WM):</label>
+                          <input type="number" min="0" name="inboundDeliveryWM" value={formData.inboundDeliveryWM} onChange={handleChange} className="w-full p-2 border rounded" placeholder="... Menit" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mb-8">
+                  <h2 className="text-xl font-bold border-b pb-2 mb-4 flex items-center gap-2">
+                    <IconBarChart3 /> Preferensi & Opini
+                  </h2>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <p className="font-semibold mb-2">6. Terhadap penggunaan Implementasi WMS, menurut Anda lebih produktif mana? <span className="text-red-500">*</span></p>
+                      <div className="flex flex-col sm:flex-row gap-4">
+                        <label className="flex items-center gap-2 p-3 border rounded-lg cursor-pointer hover:bg-slate-50">
+                          <input required type="radio" name="preference" value="Inventory Management (IM)" onChange={handleChange} checked={formData.preference === 'Inventory Management (IM)'} />
+                          SAP Modul Inventory Management (IM)
+                        </label>
+                        <label className="flex items-center gap-2 p-3 border rounded-lg cursor-pointer hover:bg-slate-50">
+                          <input required type="radio" name="preference" value="Warehouse Management (WM)" onChange={handleChange} checked={formData.preference === 'Warehouse Management (WM)'} />
+                          SAP Modul Warehouse Management (WM)
+                        </label>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="font-semibold mb-2 block">Berikan Pendapat/Alasan Anda: <span className="text-red-500">*</span></label>
+                      <textarea required name="opinion" value={formData.opinion} onChange={handleChange} rows="4" className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Tuliskan pengalaman Anda secara detail..."></textarea>
+                    </div>
+                  </div>
+                </div>
+
                 <button 
-                  onClick={() => setActiveTab('dashboard')}
-                  className="bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 px-6 rounded-lg shadow transition-colors inline-flex items-center gap-2"
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 px-4 rounded-lg shadow transition-colors flex justify-center items-center gap-2 disabled:opacity-70"
                 >
-                  <IconBarChart3 />
-                  Lihat Dashboard Report
+                  {isSubmitting ? (
+                    <>Loading...</>
+                  ) : (
+                    <>Submit Kuisioner</>
+                  )}
                 </button>
-              </div>
+              </form>
             ) : (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
