@@ -20,7 +20,7 @@
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState } = React;
+    const { useState, useEffect } = React;
 
     const IconDatabase = () => <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M3 5V19A9 3 0 0 0 21 19V5"></path><path d="M3 12A9 3 0 0 0 21 12"></path></svg>;
     const IconUser = () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>;
@@ -30,6 +30,10 @@
     const IconBarChart3 = () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"></path><rect width="4" height="7" x="7" y="10" rx="1"></rect><rect width="4" height="12" x="15" y="5" rx="1"></rect></svg>;
     const IconCheckCircle2 = () => <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>;
     const IconList = () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" x2="21" y1="6" y2="6"></line><line x1="8" x2="21" y1="12" y2="12"></line><line x1="8" x2="21" y1="18" y2="18"></line><line x1="3" x2="3.01" y1="6" y2="6"></line><line x1="3" x2="3.01" y1="12" y2="12"></line><line x1="3" x2="3.01" y1="18" y2="18"></line></svg>;
+    const IconTrendingUp = () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-green-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>;
+    const IconWallet = () => <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-yellow-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>;
+    const IconArrowRight = () => <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>;
+    const IconArrowDown = () => <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>;
 
     function App() {
       const [activeTab, setActiveTab] = useState('form');
@@ -50,6 +54,45 @@
 
       const [formData, setFormData] = useState(initialForm);
       const [submissions, setSubmissions] = useState([]);
+      const [isLoadingData, setIsLoadingData] = useState(false);
+      const [fetchError, setFetchError] = useState(null);
+
+      // Data Volume Transaksi
+      const transactionData = [
+        { site: 'TDM', y2025: 2394, y2026: 4555 },
+        { site: 'CMSJ', y2025: 2966, y2026: 4148 },
+        { site: 'CPLR', y2025: 3253, y2026: 6894 },
+        { site: 'PKM', y2025: 134, y2026: 80 },
+        { site: 'CCLG', y2025: 1210, y2026: 2233 },
+        { site: 'CDI', y2025: 7846, y2026: 8647 },
+        { site: 'MHU', y2025: 14160, y2026: 27101 },
+        { site: 'DCPLR', y2025: 0, y2026: 1202 },
+      ];
+      const total2025 = transactionData.reduce((sum, item) => sum + item.y2025, 0);
+      const total2026 = transactionData.reduce((sum, item) => sum + item.y2026, 0);
+
+      // Fungsi untuk menarik data dari Google Sheets secara Real-time (GET)
+      const fetchData = async () => {
+        setIsLoadingData(true);
+        setFetchError(null);
+        try {
+          const response = await fetch(SCRIPT_URL);
+          const result = await response.json();
+          if (result.status === 'success') {
+            setSubmissions(result.data);
+          }
+        } catch (error) {
+          console.error("Error fetching data:", error);
+          setFetchError("Gagal mengambil data dari server.");
+        } finally {
+          setIsLoadingData(false);
+        }
+      };
+
+      // Tarik data secara otomatis saat aplikasi pertama kali dimuat
+      useEffect(() => {
+        fetchData();
+      }, []);
 
       const handleChange = (e) => {
         const { name, value } = e.target;
@@ -96,6 +139,57 @@
       const prefWMCount = submissions.filter(s => s.preference === 'Warehouse Management (WM)').length;
       const prefPercentage = submissions.length === 0 ? 0 : Math.round((prefWMCount / submissions.length) * 100);
 
+      // Kalkulasi Finansial & ROI untuk Top Management
+      const capex = 600000000;
+      const manpower2025 = 49;
+      const manpower2026 = 46;
+      const currentManpower = manpower2026; // Acuan perhitungan cost saving saat ini
+      const salary = 9000000;
+      const itemsPerDay = 130;
+      const workMins = 660; // 11 jam kerja efektif (Shift 12 jam - 1 jam istirahat)
+      const complexityFactor = 1.1;
+
+      let timeSaved = 0, efficiency = 0, savingMonth = 0, savingYear = 0, bep = 0;
+      let dtRecIM = 0, dtRecWM = 0, dtIssIM = 0, dtIssWM = 0, dtOpnIM = 0, dtOpnWM = 0, dtTOWM = 0, dtInbIM = 0, dtInbWM = 0;
+
+      if (submissions.length > 0) {
+        dtRecIM = Number(calculateAverage('receiptIM'));
+        dtRecWM = Number(calculateAverage('receiptWM'));
+        
+        dtIssIM = Number(calculateAverage('issueIM'));
+        dtIssWM = Number(calculateAverage('issueWM'));
+        
+        dtOpnIM = Number(calculateAverage('opnameIM'));
+        dtOpnWM = Number(calculateAverage('opnameWM'));
+        
+        dtTOWM = Number(calculateAverage('transferOrderWM')); // IM = 0
+        
+        dtInbIM = Number(calculateAverage('inboundDeliveryIM'));
+        dtInbWM = Number(calculateAverage('inboundDeliveryWM'));
+
+        // Kalkulasi penghematan riil per proses berdasarkan kuisioner
+        const savedRec = dtRecIM - dtRecWM;
+        const savedIss = dtIssIM - dtIssWM;
+        const savedOpn = dtOpnIM - dtOpnWM;
+        const savedTO = 0 - dtTOWM; // WMS menambah proses TO
+        const savedInb = dtInbIM - dtInbWM;
+
+        // Rata-rata penghematan lead time (karena proporsi 130 transaksi tidak diketahui/merata)
+        timeSaved = (savedRec + savedIss + savedOpn + savedTO + savedInb) / 5;
+
+        // Kalkulasi efisiensi dan finansial secara detail
+        const savedPerDay = timeSaved * itemsPerDay * complexityFactor;
+        efficiency = savedPerDay / workMins; 
+        if(efficiency > 1) efficiency = 1; // Limit max 100%
+        if(efficiency < 0) efficiency = 0;
+
+        savingMonth = efficiency * salary * currentManpower;
+        savingYear = savingMonth * 12;
+        bep = savingMonth > 0 ? (capex / savingMonth) : 0;
+      }
+
+      const formatRp = (num) => "Rp " + Math.round(num).toLocaleString('id-ID');
+
       return (
         <div className="min-h-screen">
           {/* Header */}
@@ -116,7 +210,7 @@
                   Isi Kuisioner
                 </button>
                 <button 
-                  onClick={() => setActiveTab('dashboard')}
+                  onClick={() => { setActiveTab('dashboard'); fetchData(); }}
                   className={`flex-1 md:flex-none px-4 py-2 rounded-md text-sm font-semibold transition-all ${activeTab === 'dashboard' ? 'bg-white text-blue-800 shadow' : 'text-blue-100 hover:bg-blue-800'}`}
                 >
                   Dashboard Report
@@ -297,8 +391,15 @@
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                     <h3 className="text-slate-500 text-sm font-bold mb-1 uppercase">Total Responden</h3>
-                    <p className="text-4xl font-black text-blue-800">{submissions.length}</p>
-                    <p className="text-xs text-slate-400 mt-2">Karyawan telah berpartisipasi</p>
+                    <div className="flex items-baseline gap-3">
+                      <p className="text-4xl font-black text-blue-800">{submissions.length}</p>
+                      {isLoadingData && <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full animate-pulse">Live Update...</span>}
+                    </div>
+                    {fetchError ? (
+                      <p className="text-xs text-red-500 mt-2 font-semibold">{fetchError}</p>
+                    ) : (
+                      <p className="text-xs text-slate-400 mt-2">Karyawan telah berpartisipasi</p>
+                    )}
                   </div>
                   <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 md:col-span-2">
                     <h3 className="text-slate-500 text-sm font-bold mb-3 uppercase">Tingkat Preferensi (Produktivitas)</h3>
@@ -323,82 +424,226 @@
                   </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                  <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
-                    <IconClock /> Perbandingan Rata-Rata Waktu (Menit/Material)
+                {/* Top Management Financial ROI Report */}
+                <div className="bg-gradient-to-br from-slate-900 to-blue-900 p-6 rounded-xl shadow-lg border border-blue-800 text-white">
+                  <h3 className="text-lg font-bold mb-6 flex items-center gap-2 text-blue-100">
+                    <IconTrendingUp /> Executive Summary: WMS Financial & ROI Analysis
                   </h3>
                   
                   {submissions.length === 0 ? (
-                    <p className="text-sm text-slate-400 italic">Data belum tersedia untuk kalkulasi chart.</p>
+                    <p className="text-sm text-blue-300 italic">Data survei belum tersedia untuk melakukan proyeksi finansial.</p>
                   ) : (
-                    <div className="space-y-6">
-                      <div>
-                        <p className="text-sm font-bold mb-2">Proses Receipt (Penerimaan)</p>
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-4">
-                            <span className="w-12 text-xs font-bold text-slate-500">IM</span>
-                            <div className="flex-1 bg-slate-100 rounded-r-md h-8 flex items-center">
-                              <div className="bg-slate-400 h-full rounded-r-md flex items-center px-3 text-xs text-white font-bold" style={{ width: `${Math.min(calculateAverage('receiptIM') * 2, 100)}%` }}>
-                                {calculateAverage('receiptIM')} Min
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-4">
-                            <span className="w-12 text-xs font-bold text-slate-500">WM</span>
-                            <div className="flex-1 bg-slate-100 rounded-r-md h-8 flex items-center">
-                              <div className="bg-blue-500 h-full rounded-r-md flex items-center px-3 text-xs text-white font-bold" style={{ width: `${Math.min(calculateAverage('receiptWM') * 2, 100)}%` }}>
-                                {calculateAverage('receiptWM')} Min
-                              </div>
-                            </div>
-                          </div>
+                    <div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div className="bg-white/10 p-4 rounded-lg border border-white/20">
+                          <p className="text-blue-200 text-xs font-semibold uppercase mb-1">Total Investasi (CAPEX)</p>
+                          <p className="text-2xl font-black text-white">{formatRp(capex)}</p>
+                        </div>
+                        <div className="bg-white/10 p-4 rounded-lg border border-white/20">
+                          <p className="text-blue-200 text-xs font-semibold uppercase mb-1">Cost Saving per Tahun</p>
+                          <p className="text-2xl font-black text-green-400">{timeSaved > 0 ? formatRp(savingYear) : "Rp 0"}</p>
+                        </div>
+                        <div className="bg-white/10 p-4 rounded-lg border border-white/20">
+                          <p className="text-blue-200 text-xs font-semibold uppercase mb-1">Estimasi Balik Modal (BEP)</p>
+                          <p className="text-2xl font-black text-yellow-400">{timeSaved > 0 ? `${bep.toFixed(1)} Bulan` : "N/A"}</p>
                         </div>
                       </div>
 
-                      <div>
-                        <p className="text-sm font-bold mb-2">Proses Goods Issue (Pengeluaran)</p>
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-4">
-                            <span className="w-12 text-xs font-bold text-slate-500">IM</span>
-                            <div className="flex-1 bg-slate-100 rounded-r-md h-8 flex items-center">
-                              <div className="bg-slate-400 h-full rounded-r-md flex items-center px-3 text-xs text-white font-bold" style={{ width: `${Math.min(calculateAverage('issueIM') * 2, 100)}%` }}>
-                                {calculateAverage('issueIM')} Min
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-4">
-                            <span className="w-12 text-xs font-bold text-slate-500">WM</span>
-                            <div className="flex-1 bg-slate-100 rounded-r-md h-8 flex items-center">
-                              <div className="bg-blue-500 h-full rounded-r-md flex items-center px-3 text-xs text-white font-bold" style={{ width: `${Math.min(calculateAverage('issueWM') * 2, 100)}%` }}>
-                                {calculateAverage('issueWM')} Min
-                              </div>
-                            </div>
-                          </div>
+                      <div className="bg-white/5 rounded-lg border border-white/20 mb-6 overflow-hidden">
+                        <div className="bg-white/10 px-4 py-2 border-b border-white/20 font-bold text-sm text-white">
+                          Rincian Kalkulasi Penghematan Lead Time (Berdasarkan Kuisioner)
+                        </div>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-sm text-left">
+                            <thead className="bg-white/5 text-blue-200">
+                              <tr>
+                                <th className="px-4 py-2 border-b border-white/10">Proses Transaksi</th>
+                                <th className="px-4 py-2 border-b border-white/10 text-center">IM (Menit)</th>
+                                <th className="px-4 py-2 border-b border-white/10 text-center">WM (Menit)</th>
+                                <th className="px-4 py-2 border-b border-white/10 text-right">Penghematan</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/10 text-blue-100">
+                              <tr>
+                                <td className="px-4 py-2">Receipt (Penerimaan)</td>
+                                <td className="px-4 py-2 text-center">{dtRecIM.toFixed(1)}</td>
+                                <td className="px-4 py-2 text-center">{dtRecWM.toFixed(1)}</td>
+                                <td className={`px-4 py-2 text-right font-semibold ${(dtRecIM - dtRecWM) >= 0 ? 'text-green-400' : 'text-red-400'}`}>{(dtRecIM - dtRecWM) > 0 ? '+' : ''}{(dtRecIM - dtRecWM).toFixed(1)} Min</td>
+                              </tr>
+                              <tr>
+                                <td className="px-4 py-2">Goods Issue (Pengeluaran)</td>
+                                <td className="px-4 py-2 text-center">{dtIssIM.toFixed(1)}</td>
+                                <td className="px-4 py-2 text-center">{dtIssWM.toFixed(1)}</td>
+                                <td className={`px-4 py-2 text-right font-semibold ${(dtIssIM - dtIssWM) >= 0 ? 'text-green-400' : 'text-red-400'}`}>{(dtIssIM - dtIssWM) > 0 ? '+' : ''}{(dtIssIM - dtIssWM).toFixed(1)} Min</td>
+                              </tr>
+                              <tr>
+                                <td className="px-4 py-2">Stock Opname</td>
+                                <td className="px-4 py-2 text-center">{dtOpnIM.toFixed(1)}</td>
+                                <td className="px-4 py-2 text-center">{dtOpnWM.toFixed(1)}</td>
+                                <td className={`px-4 py-2 text-right font-semibold ${(dtOpnIM - dtOpnWM) >= 0 ? 'text-green-400' : 'text-red-400'}`}>{(dtOpnIM - dtOpnWM) > 0 ? '+' : ''}{(dtOpnIM - dtOpnWM).toFixed(1)} Min</td>
+                              </tr>
+                              <tr>
+                                <td className="px-4 py-2">Transfer Order</td>
+                                <td className="px-4 py-2 text-center">-</td>
+                                <td className="px-4 py-2 text-center">{dtTOWM.toFixed(1)}</td>
+                                <td className="px-4 py-2 text-right font-semibold text-red-400">-{dtTOWM.toFixed(1)} Min</td>
+                              </tr>
+                              <tr>
+                                <td className="px-4 py-2">Inbound Delivery</td>
+                                <td className="px-4 py-2 text-center">{dtInbIM.toFixed(1)}</td>
+                                <td className="px-4 py-2 text-center">{dtInbWM.toFixed(1)}</td>
+                                <td className={`px-4 py-2 text-right font-semibold ${(dtInbIM - dtInbWM) >= 0 ? 'text-green-400' : 'text-red-400'}`}>{(dtInbIM - dtInbWM) > 0 ? '+' : ''}{(dtInbIM - dtInbWM).toFixed(1)} Min</td>
+                              </tr>
+                              <tr className="bg-white/10 font-bold text-white">
+                                <td colSpan="3" className="px-4 py-2 text-right">Rata-Rata Lead Time Hemat per Material:</td>
+                                <td className="px-4 py-2 text-right text-green-400">{timeSaved > 0 ? '+' : ''}{timeSaved.toFixed(2)} Min</td>
+                              </tr>
+                            </tbody>
+                          </table>
                         </div>
                       </div>
 
-                      <div>
-                        <p className="text-sm font-bold mb-2">Proses Stock Opname</p>
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-4">
-                            <span className="w-12 text-xs font-bold text-slate-500">IM</span>
-                            <div className="flex-1 bg-slate-100 rounded-r-md h-8 flex items-center">
-                              <div className="bg-slate-400 h-full rounded-r-md flex items-center px-3 text-xs text-white font-bold" style={{ width: `${Math.min(calculateAverage('opnameIM'), 100)}%` }}>
-                                {calculateAverage('opnameIM')} Min
-                              </div>
+                      {/* Visualisasi Alur Logika Finansial */}
+                      <div className="bg-black/20 p-5 rounded-lg border border-black/20">
+                        <p className="font-bold text-white mb-4 text-center md:text-left">Alur Logika Finansial:</p>
+                        
+                        <div className="flex flex-col md:flex-row items-center justify-between gap-2 md:gap-4 mb-6">
+                          {/* Step 1 */}
+                          <div className="flex-1 w-full bg-white/5 border border-white/10 rounded-xl p-4 text-center relative overflow-hidden">
+                            <div className="w-10 h-10 mx-auto bg-blue-500/20 rounded-full flex items-center justify-center mb-2">
+                              <IconClock className="text-blue-300 w-5 h-5"/>
                             </div>
+                            <p className="text-[10px] text-blue-200 font-bold uppercase mb-1 tracking-wider">1. Efisiensi Waktu</p>
+                            <p className="text-xl font-black text-white mb-1">
+                              {((timeSaved > 0 ? timeSaved : 0) * itemsPerDay * complexityFactor).toFixed(0)} <span className="text-xs font-normal text-blue-200">mnt/hari/org</span>
+                            </p>
+                            <p className="text-[10px] text-blue-300/70">({timeSaved > 0 ? timeSaved.toFixed(2) : 0} mnt × 130 trx × 1.1)</p>
                           </div>
-                          <div className="flex items-center gap-4">
-                            <span className="w-12 text-xs font-bold text-slate-500">WM</span>
-                            <div className="flex-1 bg-slate-100 rounded-r-md h-8 flex items-center">
-                              <div className="bg-blue-500 h-full rounded-r-md flex items-center px-3 text-xs text-white font-bold" style={{ width: `${Math.min(calculateAverage('opnameWM'), 100)}%` }}>
-                                {calculateAverage('opnameWM')} Min
-                              </div>
+
+                          {/* Arrow 1 */}
+                          <div className="hidden md:block text-blue-500/50"><IconArrowRight /></div>
+                          <div className="block md:hidden text-blue-500/50 my-1"><IconArrowDown /></div>
+
+                          {/* Step 2 */}
+                          <div className="flex-1 w-full bg-white/5 border border-white/10 rounded-xl p-4 text-center relative overflow-hidden">
+                            <div className="w-10 h-10 mx-auto bg-green-500/20 rounded-full flex items-center justify-center mb-2">
+                              <IconTrendingUp className="text-green-300 w-5 h-5"/>
                             </div>
+                            <p className="text-[10px] text-green-200 font-bold uppercase mb-1 tracking-wider">2. Peningkatan Produktivitas</p>
+                            <p className="text-xl font-black text-green-400 mb-1">
+                              {(efficiency * 100).toFixed(1)}% <span className="text-xs font-normal text-green-200">Efisiensi</span>
+                            </p>
+                            <p className="text-[10px] text-blue-300/70">(Dari 660 mnt jam kerja efektif)</p>
                           </div>
+
+                          {/* Arrow 2 */}
+                          <div className="hidden md:block text-blue-500/50"><IconArrowRight /></div>
+                          <div className="block md:hidden text-blue-500/50 my-1"><IconArrowDown /></div>
+
+                          {/* Step 3 */}
+                          <div className="flex-1 w-full bg-gradient-to-b from-yellow-500/20 to-yellow-600/5 border border-yellow-500/30 rounded-xl p-4 text-center relative overflow-hidden shadow-lg shadow-yellow-900/20">
+                            <div className="w-10 h-10 mx-auto bg-yellow-500/20 rounded-full flex items-center justify-center mb-2">
+                              <IconWallet />
+                            </div>
+                            <p className="text-[10px] text-yellow-200 font-bold uppercase mb-1 tracking-wider">3. Konversi Rupiah</p>
+                            <p className="text-xl font-black text-yellow-400 mb-1">
+                              {formatRp(savingMonth)}<span className="text-xs font-normal text-yellow-200">/Bln</span>
+                            </p>
+                            <p className="text-[10px] text-yellow-200/70">({(efficiency * 100).toFixed(1)}% × Rp 9Jt × {currentManpower} Org)</p>
+                          </div>
+                        </div>
+                        
+                        <div className={`p-4 rounded-lg border text-sm text-center font-medium ${timeSaved > 0 ? 'bg-green-500/10 border-green-500/30 text-green-100' : 'bg-yellow-500/10 border-yellow-500/30 text-yellow-200'}`}>
+                          {timeSaved > 0 
+                            ? `💡 Kesimpulan: Berdasarkan penghematan riil di atas, nilai investasi WMS sebesar Rp 600 Juta diproyeksikan akan mencapai titik impas (Break-Even Point) dalam kurun waktu ${bep.toFixed(1)} bulan.` 
+                            : '⚠️ Saat ini data belum menunjukkan penghematan waktu (akumulasi lead time WM masih tercatat lebih lama dari IM).'}
                         </div>
                       </div>
                     </div>
                   )}
+                </div>
+
+                {/* Tabel Volume Transaksi */}
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                  <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
+                    <IconBarChart3 /> Peningkatan Volume Transaksi (April 2025 vs April 2026)
+                  </h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left border-collapse">
+                      <thead className="bg-slate-50 text-slate-500 font-bold uppercase">
+                        <tr>
+                          <th className="px-4 py-3 border-b">Site</th>
+                          <th className="px-4 py-3 border-b">April 2025 (IM / Sebelum)</th>
+                          <th className="px-4 py-3 border-b">April 2026 (WM / Sesudah)</th>
+                          <th className="px-4 py-3 border-b">Pertumbuhan</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {transactionData.map((row, idx) => {
+                          const isNew = row.y2025 === 0;
+                          const growth = isNew ? 100 : Math.round(((row.y2026 - row.y2025) / row.y2025) * 100);
+                          const isPositive = row.y2026 > row.y2025;
+                          return (
+                            <tr key={idx} className="hover:bg-slate-50">
+                              <td className="px-4 py-3 font-semibold">{row.site}</td>
+                              <td className="px-4 py-3">{row.y2025.toLocaleString('id-ID')}</td>
+                              <td className="px-4 py-3 font-bold text-blue-700">{row.y2026.toLocaleString('id-ID')}</td>
+                              <td className="px-4 py-3">
+                                {isNew ? (
+                                  <span className="text-blue-600 font-bold text-xs bg-blue-100 px-2 py-1 rounded-full">Site Baru</span>
+                                ) : (
+                                  <span className={`font-bold text-xs px-2 py-1 rounded-full ${isPositive ? 'text-green-700 bg-green-100' : 'text-red-700 bg-red-100'}`}>
+                                    {isPositive ? '+' : ''}{growth}%
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                      <tfoot className="bg-slate-100 font-bold">
+                        <tr>
+                          <td className="px-4 py-3 rounded-bl-lg">TOTAL KESELURUHAN</td>
+                          <td className="px-4 py-3">{total2025.toLocaleString('id-ID')}</td>
+                          <td className="px-4 py-3 text-blue-800">{total2026.toLocaleString('id-ID')}</td>
+                          <td className="px-4 py-3 rounded-br-lg text-green-700">+{Math.round(((total2026 - total2025) / total2025) * 100)}%</td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-4 italic">* Data ini diambil berdasarkan periode <strong>April 2025</strong> dan <strong>April 2026</strong> yang menunjukkan kapasitas penyelesaian transaksi oleh Manpower (Storeman) meningkat berkat efisiensi waktu operasional setelah implementasi WMS.</p>
+
+                  {/* Highlight Produktivitas Manpower */}
+                  <div className="mt-6 bg-blue-50 p-5 rounded-xl border border-blue-100 flex flex-col lg:flex-row gap-6 items-center justify-between">
+                    <div className="flex-1">
+                      <h4 className="text-blue-900 font-bold mb-2 flex items-center gap-2">
+                        <IconUser /> Analisis Produktivitas Manpower
+                      </h4>
+                      <p className="text-sm text-blue-800 leading-relaxed">
+                        Data membuktikan terjadinya lonjakan volume transaksi sebesar <strong>{Math.round(((total2026 - total2025) / total2025) * 100)}%</strong> pada April 2026. 
+                        Luar biasanya, meskipun beban kerja meningkat drastis, perusahaan justru berhasil melakukan <strong>efisiensi Manpower dari {manpower2025} orang menjadi {manpower2026} orang</strong>. 
+                        Hal ini mengonfirmasi bahwa implementasi WMS secara langsung telah mendongkrak kapasitas produktivitas setiap individu Storeman secara signifikan.
+                      </p>
+                    </div>
+                    <div className="flex gap-3 w-full lg:w-auto">
+                      <div className="bg-white p-4 rounded-lg shadow-sm border border-slate-200 flex flex-col justify-center min-w-[120px] text-center">
+                        <p className="text-xs text-slate-500 font-bold uppercase mb-1">IM (Apr 2025)</p>
+                        <p className="text-2xl font-black text-slate-700">{Math.round(total2025 / manpower2025).toLocaleString('id-ID')}</p>
+                        <p className="text-[10px] text-slate-500">{manpower2025} Orang</p>
+                      </div>
+                      <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-blue-300 flex flex-col justify-center min-w-[120px] text-center">
+                        <p className="text-xs text-blue-600 font-bold uppercase mb-1">WMS (Apr 2026)</p>
+                        <p className="text-2xl font-black text-blue-700">{Math.round(total2026 / manpower2026).toLocaleString('id-ID')}</p>
+                        <p className="text-[10px] text-blue-500">{manpower2026} Orang</p>
+                      </div>
+                      <div className="bg-green-500 p-4 rounded-lg shadow-sm flex flex-col justify-center min-w-[100px] text-center">
+                        <p className="text-xs text-green-100 font-bold uppercase mb-1">Kapasitas</p>
+                        <p className="text-2xl font-black text-white">+{Math.round(((total2026 / manpower2026) - (total2025 / manpower2025)) / (total2025 / manpower2025) * 100)}%</p>
+                        <p className="text-[10px] text-green-100">Lebih Produktif</p>
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
 
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
